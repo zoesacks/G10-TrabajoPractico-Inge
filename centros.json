@@ -1,0 +1,92 @@
+{
+  "centros": [
+    {
+      "id": 1,
+      "nombre": "Centro de Salud Municipal",
+      "descripcion": "Centro de atención primaria permanente",
+      "categoria": "Centro Fijo",
+      "direccion": "Av. Hipólito Yrigoyen 9100",
+      "coordenadas": {
+        "lat": -34.7520,
+        "lng": -58.3800
+      }
+    },
+    {
+      "id": 2,
+      "nombre": "Hospital Fiorito",
+      "descripcion": "Atención de emergencias y especialidades",
+      "categoria": "Centro Fijo",
+      "direccion": "Calle 508 y 519",
+      "coordenadas": {
+        "lat": -34.7550,
+        "lng": -58.3750
+      }
+    },
+    {
+      "id": 3,
+      "nombre": "Unidad Móvil Norte",
+      "descripcion": "Unidad sanitaria móvil - Zona norte",
+      "categoria": "Centro Movil",
+      "direccion": "Recorre barrios de zona norte",
+      "coordenadas": {
+        "lat": -34.7480,
+        "lng": -58.3850
+      }
+    },
+    {
+      "id": 4,
+      "nombre": "Centro de Salud Barrio Progreso",
+      "descripcion": "Atención comunitaria permanente",
+      "categoria": "Centro Fijo",
+      "direccion": "Barrio Progreso",
+      "coordenadas": {
+        "lat": -34.7560,
+        "lng": -58.3820
+      }
+    },
+    {
+      "id": 5,
+      "nombre": "Unidad Móvil Sur",
+      "descripcion": "Servicio itinerante de salud - Zona sur",
+      "categoria": "Centro Movil",
+      "direccion": "Recorre barrios de zona sur",
+      "coordenadas": {
+        "lat": -34.7500,
+        "lng": -58.3780
+      }
+    },
+    {
+      "id": 6,
+      "nombre": "Centro de Vacunación Central",
+      "descripcion": "Vacunación y prevención",
+      "categoria": "Centro Fijo",
+      "direccion": "Centro de Lomas de Zamora",
+      "coordenadas": {
+        "lat": -34.7535,
+        "lng": -58.3795
+      }
+    },
+    {
+      "id": 7,
+      "nombre": "Unidad Móvil Este",
+      "descripcion": "Atención móvil - Zona este",
+      "categoria": "Centro Movil",
+      "direccion": "Recorre diferentes barrios",
+      "coordenadas": {
+        "lat": -34.7490,
+        "lng": -58.3720
+      }
+    },
+    {
+      "id": 8,
+      "nombre": "CAPS San José",
+      "descripcion": "Centro de Atención Primaria de la Salud",
+      "categoria": "Centro Fijo",
+      "direccion": "Barrio San José",
+      "coordenadas": {
+        "lat": -34.7575,
+        "lng": -58.3765
+      }
+    }
+  ]
+}
