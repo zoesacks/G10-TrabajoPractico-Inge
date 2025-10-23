@@ -3,62 +3,74 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Proyecto - Index</title>
+    <title>Proyecto - Centros de Salud</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container-fluid p-0">
-        <!-- Barra de búsqueda -->
-        <div class="bg-light border-bottom shadow-sm">
-            <div class="container p-3">
-                <!-- Botones de categoría -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <div class="btn-group w-100" role="group" aria-label="Filtro de categorías">
-                            <button type="button" class="btn btn-outline-primary active" id="btn-todos" onclick="setCategory('Todos')">
-                                📍 Todos
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" id="btn-fijo" onclick="setCategory('Centro Fijo')">
-                                🏥 Centro Fijo
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" id="btn-movil" onclick="setCategory('Centro Movil')">
-                                🚑 Centro Móvil
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Buscador -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="input-group input-group-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">🏥 Centros de Salud</a>
+        </div>
+    </nav>
+     
+    <div class="main m-5">
+        <div class="container-fluid p-3">
+            <div class="row vh-100">
+                <!-- Columna izquierda: Buscador y Cards -->
+                <div class="col-md-5 left-panel">
+                    <!-- Buscador -->
+                    <div class="search-container p-3 bg-light border-bottom sticky-top">
+                        <h4 class="mb-3">🏥 Centros de Salud</h4>
+                        <div class="input-group mb-2">
                             <span class="input-group-text">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                                 </svg>
                             </span>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nombre, descripción o dirección..." aria-label="Buscar">
-                            <button class="btn btn-primary" type="button" onclick="buscarUbicacion()">
-                                Buscar
-                            </button>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar centros...">
                         </div>
-                        <small class="text-muted d-block mt-2" id="categoryLabel">
-                            <strong>Categoría:</strong> Todos | <span id="cantidadMarcadores">0</span> centros encontrados
+                        <small class="text-muted">
+                            <span id="cantidadMarcadores">0</span> centros encontrados
                         </small>
+                    </div>
+
+                    <div class="cards-container p-3" id="cardsContainer">
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Mapa con filtros -->
+                <div class="col-md-7 right-panel p-0">
+                    <div class="card h-100 border-0 rounded-0">
+                        <!-- Filtros del mapa -->
+                        <div class="card-header bg-white border-bottom p-3">
+                            <h5 class="mb-3">📍 Mapa de Centros</h5>
+                            <div class="btn-group w-100" role="group">
+                                <input type="checkbox" class="btn-check" id="check-fijo" checked autocomplete="off" onchange="toggleFilter('Centro Fijo')">
+                                <label class="btn btn-outline-info" for="check-fijo">🏥 Centro Fijo</label>
+
+                                <input type="checkbox" class="btn-check" id="check-movil" checked autocomplete="off" onchange="toggleFilter('Centro Movil')">
+                                <label class="btn btn-outline-danger" for="check-movil">🚑 Centro Móvil</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Mapa -->
+                        <div class="card-body p-0">
+                            <div id="map"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Mapa -->
-        <div id="map"></div>
     </div>
+    
      
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Script principal -->
     <script src="script.js"></script>
 </body>
 </html>

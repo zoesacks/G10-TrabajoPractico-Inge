@@ -1,7 +1,11 @@
-let selectedCategory = 'Todos';
 let map;
 let markers = [];
 let centrosData = [];
+let selectedCentroId = null;
+let filtrosActivos = {
+    'Centro Fijo': true,
+    'Centro Movil': true
+};
 
 // Definir iconos personalizados
 const iconoFijo = L.icon({
@@ -20,6 +24,15 @@ const iconoMovil = L.icon({
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
+});
+
+const iconoSeleccionado = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [32, 52],
+    iconAnchor: [16, 52],
+    popupAnchor: [1, -44],
+    shadowSize: [52, 52]
 });
 
 // Inicializar el mapa
@@ -41,40 +54,71 @@ async function cargarCentros() {
         centrosData = data.centros;
         console.log('Centros cargados:', centrosData);
         
-        // Crear marcadores para cada centro
+        // Crear marcadores y cards para cada centro
         centrosData.forEach(centro => {
             agregarMarcador(centro);
+            crearCard(centro);
         });
 
         actualizarContador();
         
     } catch (error) {
         console.error('Error al cargar el JSON:', error);
-        alert('Error al cargar los centros. Verifica que el archivo centros.json existe en la misma carpeta.');
+        document.getElementById('cardsContainer').innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                <strong>Error:</strong> No se pudo cargar el archivo centros.json. 
+                Verifica que existe en la misma carpeta.
+            </div>
+        `;
     }
 }
 
-// Función para agregar marcadores desde los datos del JSON
+// Función para crear una card
+function crearCard(centro) {
+    const cardsContainer = document.getElementById('cardsContainer');
+    
+    const cardColor = centro.categoria === 'Centro Fijo' ? 'border-info' : 'border-danger';
+    const badgeColor = centro.categoria === 'Centro Fijo' ? 'bg-info' : 'bg-danger';
+    const icono = centro.categoria === 'Centro Fijo' ? '🏥' : '🚑';
+    
+    const cardHTML = `
+        <div class="card mb-3 card-centro ${cardColor}" id="card-${centro.id}" data-id="${centro.id}" data-categoria="${centro.categoria}" onclick="seleccionarCentro(${centro.id})">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title mb-2">${icono} ${centro.nombre}</h5>
+                    <span class="badge ${badgeColor}">${centro.categoria}</span>
+                </div>
+                <p class="card-text text-muted mb-2">${centro.descripcion}</p>
+                <p class="card-text small mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                    </svg>
+                    ${centro.direccion}
+                </p>
+            </div>
+        </div>
+    `;
+    
+    cardsContainer.innerHTML += cardHTML;
+}
+
+// Función para agregar marcadores
 function agregarMarcador(centro) {
     const lat = centro.coordenadas.lat;
     const lng = centro.coordenadas.lng;
     
-    // Seleccionar icono según la categoría
     const icono = centro.categoria === 'Centro Fijo' ? iconoFijo : iconoMovil;
     
-    // Crear el marcador con el icono correspondiente
     let marker = L.marker([lat, lng], { icon: icono });
     
-    // Color del badge según la categoría
-    const badgeColor = centro.categoria === 'Centro Fijo' ? 'bg-primary' : 'bg-danger';
+    const badgeColor = centro.categoria === 'Centro Fijo' ? 'bg-info' : 'bg-danger';
     
-    // Crear el contenido del popup
     const popupContent = `
         <div class="popup-content">
             <h6><strong>${centro.nombre}</strong></h6>
             <p class="mb-1">${centro.descripcion}</p>
-            <p class="mb-1 text-muted small"><i class="bi bi-geo-alt"></i> ${centro.direccion}</p>
-            <span class="badge ${badgeColor} badge-categoria">${centro.categoria}</span>
+            <p class="mb-1 text-muted small">📍 ${centro.direccion}</p>
+            <span class="badge ${badgeColor}">${centro.categoria}</span>
         </div>
     `;
     
@@ -83,55 +127,108 @@ function agregarMarcador(centro) {
     // Guardar datos adicionales en el marcador
     marker.centroData = centro;
     marker.categoria = centro.categoria;
-    marker.nombre = centro.nombre.toLowerCase();
-    marker.descripcion = centro.descripcion.toLowerCase();
-    marker.direccion = centro.direccion.toLowerCase();
+    marker.centroId = centro.id;
+    marker.iconoOriginal = icono;
     
-    // Agregar al mapa
+    // Click en el marcador
+    marker.on('click', function() {
+        seleccionarCentro(centro.id);
+    });
+    
     marker.addTo(map);
     markers.push(marker);
 }
 
-// Función para cambiar categoría
-function setCategory(category) {
-    selectedCategory = category;
-    filtrarMarcadores();
+// Función para seleccionar un centro
+function seleccionarCentro(centroId) {
+    // Deseleccionar el anterior
+    if (selectedCentroId !== null) {
+        const cardAnterior = document.getElementById(`card-${selectedCentroId}`);
+        if (cardAnterior) {
+            cardAnterior.classList.remove('card-selected');
+        }
+        
+        // Restaurar icono del marcador anterior
+        const markerAnterior = markers.find(m => m.centroId === selectedCentroId);
+        if (markerAnterior) {
+            markerAnterior.setIcon(markerAnterior.iconoOriginal);
+        }
+    }
+    
+    // Seleccionar el nuevo
+    selectedCentroId = centroId;
+    const card = document.getElementById(`card-${centroId}`);
+    if (card) {
+        card.classList.add('card-selected');
+        // Scroll hacia la card
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Cambiar icono del marcador seleccionado
+    const marker = markers.find(m => m.centroId === centroId);
+    if (marker) {
+        marker.setIcon(iconoSeleccionado);
+        map.setView(marker.getLatLng(), 15, { animate: true });
+        marker.openPopup();
+    }
 }
 
-// Función para filtrar marcadores
-function filtrarMarcadores() {
+// Función para alternar filtros
+function toggleFilter(categoria) {
+    filtrosActivos[categoria] = document.getElementById(`check-${categoria === 'Centro Fijo' ? 'fijo' : 'movil'}`).checked;
+    filtrarCentros();
+}
+
+// Función para filtrar centros
+function filtrarCentros() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     let visibles = 0;
 
+    // Filtrar marcadores
     markers.forEach(marker => {
-        const coincideCategoria = selectedCategory === 'Todos' || marker.categoria === selectedCategory;
+        const coincideCategoria = filtrosActivos[marker.categoria];
+        const centro = marker.centroData;
         const coincideBusqueda = searchTerm === '' || 
-                                marker.nombre.includes(searchTerm) || 
-                                marker.descripcion.includes(searchTerm) ||
-                                marker.direccion.includes(searchTerm);
+                                centro.nombre.toLowerCase().includes(searchTerm) || 
+                                centro.descripcion.toLowerCase().includes(searchTerm) ||
+                                centro.direccion.toLowerCase().includes(searchTerm);
         
         if (coincideCategoria && coincideBusqueda) {
             marker.addTo(map);
-            visibles++;
         } else {
             map.removeLayer(marker);
         }
     });
 
-    // Actualizar el label con información de la categoría
-    document.getElementById('categoryLabel').innerHTML = 
-        `Categoría: ${selectedCategory} | <span id="cantidadMarcadores">${visibles}</span> ${visibles === 1 ? 'centro' : 'centros'} ${visibles === 1 ? 'encontrado' : 'encontrados'}`;
-}
+    // Filtrar cards
+    document.querySelectorAll('.card-centro').forEach(card => {
+        const centroId = parseInt(card.dataset.id);
+        const categoria = card.dataset.categoria;
+        const centro = centrosData.find(c => c.id === centroId);
+        
+        const coincideCategoria = filtrosActivos[categoria];
+        const coincideBusqueda = searchTerm === '' || 
+                                centro.nombre.toLowerCase().includes(searchTerm) || 
+                                centro.descripcion.toLowerCase().includes(searchTerm) ||
+                                centro.direccion.toLowerCase().includes(searchTerm);
+        
+        if (coincideCategoria && coincideBusqueda) {
+            card.style.display = 'block';
+            visibles++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
 
-// Función de búsqueda
-function buscarUbicacion() {
-    filtrarMarcadores();
+    actualizarContador(visibles);
 }
 
 // Actualizar contador
-function actualizarContador() {
-    const visibles = markers.filter(m => map.hasLayer(m)).length;
-    document.getElementById('cantidadMarcadores').textContent = visibles;
+function actualizarContador(cantidad = null) {
+    if (cantidad === null) {
+        cantidad = document.querySelectorAll('.card-centro').length;
+    }
+    document.getElementById('cantidadMarcadores').textContent = cantidad;
 }
 
 // Inicializar todo cuando carga la página
@@ -141,13 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Búsqueda en tiempo real
     document.getElementById('searchInput').addEventListener('input', function() {
-        filtrarMarcadores();
-    });
-
-    // Búsqueda al presionar Enter
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            buscarUbicacion();
-        }
+        filtrarCentros();
     });
 });
