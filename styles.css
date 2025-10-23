@@ -132,7 +132,6 @@ html, body {
     transition: all 0.3s ease;
 }
 
-/* Popups del mapa */
 .popup-content {
     min-width: 220px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
